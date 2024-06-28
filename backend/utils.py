@@ -144,7 +144,7 @@ def format_stream_response(chatCompletionChunk, history_metadata, apim_request_i
 
 
 def format_pf_non_streaming_response(
-    chatCompletion, history_metadata, response_field_name, citations_field_name, message_uuid=None
+    chatCompletion, history_metadata, response_field_name, citations_field_name, tool_response_name, message_uuid=None
 ):
     if chatCompletion is None:
         logging.error(
@@ -163,7 +163,7 @@ def format_pf_non_streaming_response(
         if response_field_name in chatCompletion:
             messages.append({
                 "role": "assistant",
-                "content": chatCompletion[response_field_name] 
+                "content": chatCompletion[response_field_name].get("content") if chatCompletion[response_field_name].get("content") else chatCompletion[tool_response_name].get("mail_status")
             })
         if citations_field_name in chatCompletion:
             messages.append({ 
@@ -190,7 +190,7 @@ def format_pf_non_streaming_response(
         return {}
 
 
-def convert_to_pf_format(input_json, request_field_name, response_field_name):
+def convert_to_pf_format(input_json, request_field_name, response_field_name, tool_response_name):
     output_json = []
     logging.debug(f"Input json: {input_json}")
     # align the input json to the format expected by promptflow chat flow
@@ -199,11 +199,18 @@ def convert_to_pf_format(input_json, request_field_name, response_field_name):
             if message["role"] == "user":
                 new_obj = {
                     "inputs": {request_field_name: message["content"]},
-                    "outputs": {response_field_name: ""},
+                    "outputs": {response_field_name: {
+                        "content": "",
+                        "role": "assistant",
+                        "function_call": None,
+                        "tool_calls": None
+                    }},
                 }
                 output_json.append(new_obj)
             elif message["role"] == "assistant" and len(output_json) > 0:
-                output_json[-1]["outputs"][response_field_name] = message["content"]
+                # We should soft-code this with the JSON that we get from the LLM later. This will do for now. . .
+                output_json[-1]["outputs"][response_field_name]["content"] = message["content"]
+                output_json[-1]["outputs"][response_field_name]["role"] = message["role"]
     logging.debug(f"PF formatted response: {output_json}")
     return output_json
 

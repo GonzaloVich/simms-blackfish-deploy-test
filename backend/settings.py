@@ -79,6 +79,7 @@ class _PromptflowSettings(BaseSettings):
     request_field_name: str = "query"
     response_field_name: str = "reply"
     citations_field_name: str = "documents"
+    tool_response_name: str = "llm_function_output"
 
 
 class _AzureOpenAIFunction(BaseModel):

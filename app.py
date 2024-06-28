@@ -282,7 +282,8 @@ async def promptflow_request(request):
             pf_formatted_obj = convert_to_pf_format(
                 request,
                 app_settings.promptflow.request_field_name,
-                app_settings.promptflow.response_field_name
+                app_settings.promptflow.response_field_name,
+                app_settings.promptflow.tool_response_name
             )
             # NOTE: This only support question and chat_history parameters
             # If you need to add more parameters, you need to modify the request body
@@ -290,6 +291,7 @@ async def promptflow_request(request):
                 app_settings.promptflow.endpoint,
                 json={
                     app_settings.promptflow.request_field_name: pf_formatted_obj[-1]["inputs"][app_settings.promptflow.request_field_name],
+                    #"chat_history": pf_formatted_obj[:-1],
                     "chat_history": pf_formatted_obj[:-1],
                 },
                 headers=headers,
@@ -331,7 +333,8 @@ async def complete_chat_request(request_body, request_headers):
             response,
             history_metadata,
             app_settings.promptflow.response_field_name,
-            app_settings.promptflow.citations_field_name
+            app_settings.promptflow.citations_field_name,
+            app_settings.promptflow.tool_response_name
         )
     else:
         response, apim_request_id = await send_chat_request(request_body, request_headers)
