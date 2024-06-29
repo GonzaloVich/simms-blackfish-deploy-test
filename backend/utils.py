@@ -166,9 +166,10 @@ def format_pf_non_streaming_response(
                 "content": chatCompletion[response_field_name].get("content") if chatCompletion[response_field_name].get("content") else chatCompletion[tool_response_name].get("mail_status")
             })
         if citations_field_name in chatCompletion:
-            messages.append({ 
+            messages.insert(0,{ 
                 "role": "tool",
-                "content": chatCompletion[citations_field_name]
+                #"content": chatCompletion[citations_field_name]
+                "content": json.dumps(chatCompletion[citations_field_name])
             })
         response_obj = {
             "id": chatCompletion["id"],
@@ -179,7 +180,7 @@ def format_pf_non_streaming_response(
             "choices": [
                 {
                     "messages": messages,
-                    "history_metadata": history_metadata,
+                    #"history_metadata": history_metadata,
                 }
             ]
         }
@@ -204,7 +205,12 @@ def convert_to_pf_format(input_json, request_field_name, response_field_name, to
                         "role": "assistant",
                         "function_call": None,
                         "tool_calls": None
-                    }},
+                    },
+                    "documents": {
+                        "citations": [],
+                        "intent": [message["content"]]
+                    }
+                    },
                 }
                 output_json.append(new_obj)
             elif message["role"] == "assistant" and len(output_json) > 0:
