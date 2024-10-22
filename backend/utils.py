@@ -163,7 +163,8 @@ def format_pf_non_streaming_response(
         if response_field_name in chatCompletion:
             messages.append({
                 "role": "assistant",
-                "content": chatCompletion[response_field_name].get("content") if chatCompletion[response_field_name].get("content") else chatCompletion[tool_response_name].get("mail_status")
+                #"content": chatCompletion[response_field_name].get("content") if chatCompletion[response_field_name].get("content") else chatCompletion[tool_response_name].get("mail_status")
+                "content": chatCompletion[response_field_name]
             })
         if citations_field_name in chatCompletion:
             messages.insert(0,{ 
